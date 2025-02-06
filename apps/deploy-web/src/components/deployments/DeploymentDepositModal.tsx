@@ -32,9 +32,11 @@ import { useSettings } from "@src/context/SettingsProvider";
 import { useWallet } from "@src/context/WalletProvider";
 import { useDenomData, useWalletBalance } from "@src/hooks/useWalletBalance";
 import { useGranteeGrants } from "@src/queries/useGrantsQuery";
+import { ServiceType } from "@src/types";
 import { AnalyticsCategory, AnalyticsEvents } from "@src/types/analytics";
 import { denomToUdenom, udenomToDenom } from "@src/utils/mathHelpers";
 import { coinToUDenom } from "@src/utils/priceUtils";
+import { LeaseSpecDetail } from "../shared/LeaseSpecDetail";
 import { LinkTo } from "../shared/LinkTo";
 import { GranteeDepositMenuItem } from "./GranteeDepositMenuItem";
 
@@ -45,6 +47,8 @@ export type DeploymentDepositModalProps = {
   onDeploymentDeposit: (deposit: number, depositorAddress: string) => void;
   handleCancel: () => void;
   children?: ReactNode;
+  title?: string;
+  services?: ServiceType[];
 };
 
 const formSchema = z
@@ -73,7 +77,9 @@ export const DeploymentDepositModal: React.FunctionComponent<DeploymentDepositMo
   onDeploymentDeposit,
   disableMin,
   denom,
-  infoText = null
+  title = "Deployment Deposit",
+  infoText = null,
+  services = []
 }) => {
   const formRef = useRef<HTMLFormElement>(null);
   const { settings } = useSettings();
@@ -225,10 +231,29 @@ export const DeploymentDepositModal: React.FunctionComponent<DeploymentDepositMo
         }
       ]}
       onClose={onClose}
-      maxWidth="xs"
       enableCloseOnBackdropClick
-      title="Deployment Deposit"
+      title={title}
     >
+      {services.length > 0 && (
+        <div className="mb-3 max-h-[300px] overflow-scroll">
+          {services.map(service => {
+            return (
+              <Alert key={service.image} className="mb-1">
+                <div className="mb-2 text-sm">
+                  <span className="font-bold">{service.title}</span>:{service.image}
+                </div>
+                <div className="flex items-center space-x-4 whitespace-nowrap">
+                  <LeaseSpecDetail type="cpu" className="flex-shrink-0" value={service.profile?.cpu as number} />
+                  {service.profile?.hasGpu && <LeaseSpecDetail type="gpu" className="flex-shrink-0" value={service.profile?.gpu as number} />}
+                  <LeaseSpecDetail type="ram" className="flex-shrink-0" value={`${service.profile?.ram} ${service.profile?.ramUnit}`} />
+                  <LeaseSpecDetail type="storage" className="flex-shrink-0" value={`${service.profile?.storage} ${service.profile?.storageUnit}`} />
+                </div>
+              </Alert>
+            );
+          })}
+        </div>
+      )}
+
       <Form {...form}>
         <form onSubmit={handleSubmit(onSubmit)} ref={formRef}>
           {infoText}
