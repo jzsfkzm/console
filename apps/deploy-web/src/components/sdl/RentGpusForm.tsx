@@ -12,11 +12,9 @@ import { event } from "nextjs-google-analytics";
 
 import { browserEnvConfig } from "@src/config/browser-env.config";
 import { useCertificate } from "@src/context/CertificateProvider";
-import { useChainParam } from "@src/context/ChainParamProvider";
 import { useSettings } from "@src/context/SettingsProvider";
 import { useWallet } from "@src/context/WalletProvider";
 import { useManagedWalletDenom } from "@src/hooks/useManagedWalletDenom";
-import { useDenomData } from "@src/hooks/useWalletBalance";
 import { useWhen } from "@src/hooks/useWhen";
 import { useGpuModels } from "@src/queries/useGpuQuery";
 import { useDepositParams } from "@src/queries/useSettings";
@@ -41,6 +39,7 @@ import { LinkTo } from "../shared/LinkTo";
 import { PrerequisiteList } from "../shared/PrerequisiteList";
 import { AdvancedConfig } from "./AdvancedConfig";
 import { CpuFormControl } from "./CpuFormControl";
+import { DeploymentMinimumEscrowAlertText } from "./DeploymentMinimumEscrowAlertText";
 import { FormPaper } from "./FormPaper";
 import { GpuFormControl } from "./GpuFormControl";
 import { ImageSelect } from "./ImageSelect";
@@ -75,12 +74,10 @@ export const RentGpusForm: React.FunctionComponent = () => {
   const { address, signAndBroadcastTx, isManaged } = useWallet();
   const { loadValidCertificates, localCert, isLocalCertMatching, loadLocalCert, setSelectedCertificate } = useCertificate();
   const [sdlDenom, setSdlDenom] = useState("uakt");
-  const { minDeposit } = useChainParam();
   const router = useRouter();
   const managedDenom = useManagedWalletDenom();
   const { data: depositParams } = useDepositParams();
   const defaultDeposit = depositParams || browserEnvConfig.NEXT_PUBLIC_DEFAULT_INITIAL_DEPOSIT;
-  const depositData = useDenomData(sdlDenom);
 
   useWhen(isManaged && sdlDenom === "uakt", () => {
     setSdlDenom(managedDenom);
@@ -292,15 +289,7 @@ export const RentGpusForm: React.FunctionComponent = () => {
           infoText={
             <Alert className="mb-4" variant="default">
               <p className="text-sm text-muted-foreground">
-                {isManaged ? (
-                  <>
-                    To create a deployment, you need to have at least <b>${depositData?.min}</b> in an escrow account.{" "}
-                  </>
-                ) : (
-                  <>
-                    To create a deployment, you need to have at least <b>{minDeposit.akt} AKT</b> or <b>{minDeposit.usdc} USDC</b> in an escrow account.{" "}
-                  </>
-                )}
+                <DeploymentMinimumEscrowAlertText />
                 <LinkTo onClick={ev => handleDocClick(ev, "https://akash.network/docs/getting-started/intro-to-akash/bids-and-leases/#escrow-accounts")}>
                   <strong>Learn more.</strong>
                 </LinkTo>
