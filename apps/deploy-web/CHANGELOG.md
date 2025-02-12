@@ -1,5 +1,12 @@
 
 
+## [2.44.1](https://github.com/jzsfkzm/console/compare/console-web/v2.44.0...console-web/v2.44.1) (2025-02-12)
+
+
+### Bug Fixes
+
+* **sdl:** break controls earlier so columns don't overlap  ([c9d3b45](https://github.com/jzsfkzm/console/commit/c9d3b4528a7a1e864f98541d1a93fbf7622f7cde)), closes [#828](https://github.com/jzsfkzm/console/issues/828)
+
 ## [2.44.0](https://github.com/akash-network/console/compare/console-web/v2.43.0...console-web/v2.44.0) (2025-02-10)
 
 
